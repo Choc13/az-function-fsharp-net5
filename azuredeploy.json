@@ -1,0 +1,117 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "functionName": "[concat(resourceGroup().name, '-function')]",
+    "storageName": "[concat('storage', uniqueString(resourceGroup().id))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-02-01",
+      "name": "[variables('storageName')]",
+      "location": "[resourceGroup().location]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "resources": [
+        {
+          "type": "blobServices/containers",
+          "apiVersion": "2021-02-01",
+          "name": "default/requests",
+          "dependsOn": [
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
+          ]
+        },
+        {
+          "type": "blobServices/containers",
+          "apiVersion": "2021-02-01",
+          "name": "default/modules",
+          "dependsOn": [
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
+          ]
+        },
+        {
+          "type": "blobServices/containers",
+          "apiVersion": "2021-02-01",
+          "name": "default/responses",
+          "dependsOn": [
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2020-12-01",
+      "name": "[variables('functionName')]",
+      "location": "[resourceGroup().location]",
+      "kind": "functionapp,linux",
+      "properties": {
+        "reserved": true
+      },
+      "sku": {
+        "name": "Y1"
+      }
+    },
+    {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2015-05-01",
+      "name": "[variables('functionName')]",
+      "location": "[resourceGroup().location]",
+      "kind": "web",
+      "tags": {
+        "[concat('hidden-link:', resourceId('Microsoft.Web/sites', variables('functionName')))]": "Resource"
+      },
+      "properties": {
+        "Application_Type": "web",
+        "ApplicationId": "[variables('functionName')]"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2020-12-01",
+      "name": "[variables('functionName')]",
+      "location": "[resourceGroup().location]",
+      "kind": "functionapp,linux",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]",
+        "[resourceId('Microsoft.Web/serverfarms', variables('functionName'))]",
+        "[resourceId('Microsoft.Insights/components', variables('functionName'))]"
+      ],
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('functionName'))]",
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageName'), ';EndpointSuffix=', environment().suffixes.storage, ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2021-02-01').keys[0].value)]"
+            },
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~3"
+            },
+            {
+              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "value": "dotnet-isolated"
+            },
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('functionName')), '2015-05-01').InstrumentationKey]"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "functionName": {
+      "type": "string",
+      "value": "[variables('functionName')]"
+    }
+  }
+}

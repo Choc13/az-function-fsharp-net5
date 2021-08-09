@@ -1,0 +1,38 @@
+name: Build & Deploy
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+env:
+  CAN_DEPLOY: ${{ github.ref == 'refs/heads/master' }}
+  FUNCTION_PACKAGE_PATH: .publish/function
+  RESOURCE_GROUP: az-function-fsharp-net5
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@master
+      with:
+        fetch-depth: 0
+    - name: Setup dotnet SDK 3.1 (https://github.com/Azure/azure-functions-dotnet-worker/issues/480)
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: "3.1.409"
+    - name: Setup dotnet SDK
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: "5.0.300"
+    - name: Publish Function
+      run: dotnet build src/Function -c Release -o ${{ env.FUNCTION_PACKAGE_PATH }}
+    - name: Login to Azure
+      if: env.CAN_DEPLOY == 'true'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_RBAC_CREDENTIALS }}
+    - name: Deploy to Azure
+      if: env.CAN_DEPLOY == 'true'
+      uses: azure/CLI@v1
+      with:
+        inlineScript: ./deploy.sh ${{ env.FUNCTION_PACKAGE_PATH }} -g ${{ env.RESOURCE_GROUP }}
