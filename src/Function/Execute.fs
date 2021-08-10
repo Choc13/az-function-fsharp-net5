@@ -3,8 +3,7 @@
 open Microsoft.Azure.Functions.Worker
 open Microsoft.Extensions.Logging
 
-type Execute() =
+type Execute(logger: ILogger<Execute>) =
     [<Function("Execute")>]
-    [<TimerTrigger("0 */5 * * * *")>]
-    member _.Run(logger: ILogger<Execute>) =
+    member _.Run([<TimerTrigger("0 */5 * * * *")>] timer: TimerInfo) =
         logger.LogInformation($"Hello at {System.DateTime.UtcNow} from an Azure function using F# on .NET 5.")

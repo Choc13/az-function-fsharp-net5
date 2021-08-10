@@ -37,7 +37,10 @@ FUNCTION_NAME=$(az deployment group create \
 
 pushd $1
 ZIP_ARCHIVE="./functionapp.zip"
-rm ${ZIP_ARCHIVE}
+if [ -f ${ZIP_ARCHIVE} ]; then
+    rm ${ZIP_ARCHIVE}
+fi
+
 zip -r ${ZIP_ARCHIVE} .
 az functionapp deployment source config-zip \
     --resource-group ${RESOURCE_GROUP} \

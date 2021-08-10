@@ -14,33 +14,7 @@
       "kind": "StorageV2",
       "sku": {
         "name": "Standard_LRS"
-      },
-      "resources": [
-        {
-          "type": "blobServices/containers",
-          "apiVersion": "2021-02-01",
-          "name": "default/requests",
-          "dependsOn": [
-            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
-          ]
-        },
-        {
-          "type": "blobServices/containers",
-          "apiVersion": "2021-02-01",
-          "name": "default/modules",
-          "dependsOn": [
-            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
-          ]
-        },
-        {
-          "type": "blobServices/containers",
-          "apiVersion": "2021-02-01",
-          "name": "default/responses",
-          "dependsOn": [
-            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
-          ]
-        }
-      ]
+      }
     },
     {
       "type": "Microsoft.Web/serverfarms",
