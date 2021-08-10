@@ -29,7 +29,7 @@ In fact, all of these gotchas are related to using .NET 5 and apply equally to a
 
 1. ### `<None Include=>` instead of `<None Update=>`
 
-    Another issue with the templates is that the settings files (`host.json` and `local.settings.json`) have the wrong compile directives, they should use `<None Include=>`.
+    Another issue with the stock templates is that the settings files (`host.json` and `local.settings.json`) have the wrong compile directives, they should use `<None Include=>`.
 
 1. ### Use `dotnet build` instead of `dotnet publish`
 
@@ -39,7 +39,7 @@ In fact, all of these gotchas are related to using .NET 5 and apply equally to a
 
 ### Prerequisites
 
-Before getting started you'll need an Azure description and a resource group, you'll also need to installed the [az cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli).
+Before getting started you'll need an Azure subscription and a resource group, you'll also need to installed the [az cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli).
 
 You can create the resource group with the `az cli` like this:
 
