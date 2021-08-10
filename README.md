@@ -39,7 +39,7 @@ In fact, all of these gotchas are related to using .NET 5 and apply equally to a
 
 ### Prerequisites
 
-Before getting started you'll need an Azure subscription and a resource group, you'll also need to installed the [az cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli).
+Before getting started you'll need an Azure subscription and a resource group, you'll also need to have the [az cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) installed.
 
 You can create the resource group with the `az cli` like this:
 
