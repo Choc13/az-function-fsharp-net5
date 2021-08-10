@@ -35,6 +35,9 @@ In fact, all of these gotchas are related to using .NET 5 and apply equally to a
 
     When publishing an ASP.NET app it's typical to run `dotnet publish` to generate the necessary runtime artifacts such as a `web.config`. Oddly, with an Azure function we just run `dotnet build` instead. See the [GitHub workflow](.github/workflows/build-and-deploy.yml#L28) for an example.
 
+1. ### Bootstrap the Host
+
+    This one isn't so much of a gotcha, but it's probably worth pointing out that in order to use the `dotnet-isolated` runtime we have to bootstrap the host ourselves. See [`Program.fs`](src/Function/Program.fs) for a minimal example that works for this simple function. Other functions that use other azure services will need to add the necessary bootstrapping code to configure those services. See the [docs](https://docs.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide#start-up-and-configuration) on isolated hosts for more information.
 ## Deployment
 
 ### Prerequisites
@@ -53,7 +56,6 @@ az group create -n <resource-group-name> -l <location>
 
     ```sh
     dotnet build src/Function -c Release -o .publish/func
-    ./deploy.sh .publish/func/ -g <name-of-your-resource-group>
     ```
 
 2. Deploy to Azure
@@ -81,9 +83,7 @@ You will need the following tools installed on your machine, see this [document]
     In [local.settings.json](local.settings.json) the following config value should be set under the `Values` section.
 
     ```json
-    "Values": {
-        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    }
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true"
     ```
 
     This tells the function to look for a storage account on the default development port and with the default development account key.
